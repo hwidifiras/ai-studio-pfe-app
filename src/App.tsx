@@ -93,7 +93,7 @@ export default function App() {
     }
 
     if (view === 'analytics') {
-      return <AnalyticsView role={role} />;
+      return <AnalyticsView role={role} orgId="org-123" />;
     }
 
     if (view === 'settings') {

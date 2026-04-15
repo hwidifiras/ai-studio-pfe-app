@@ -52,6 +52,7 @@ import { fetchAnalyticsOverview, fetchTopPosts, fetchInboxPerformance } from '@/
 
 interface AnalyticsViewProps {
   role: UserRole;
+  orgId: string;
 }
 
 const SENTIMENT_COLORS = {
@@ -60,7 +61,7 @@ const SENTIMENT_COLORS = {
   negative: '#ef4444'
 };
 
-export default function AnalyticsView({ role }: AnalyticsViewProps) {
+export default function AnalyticsView({ role, orgId }: AnalyticsViewProps) {
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [period, setPeriod] = React.useState('30d');
@@ -92,13 +93,12 @@ export default function AnalyticsView({ role }: AnalyticsViewProps) {
 
   React.useEffect(() => {
     fetchData();
-  }, [period]);
+  }, [period, orgId]);
 
   const fetchData = async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const orgId = 'current-org'; // Dynamisé via context en prod
       const { from, to } = getDatesFromPeriod(period);
 
       const [overviewData, postsData, perfData] = await Promise.all([

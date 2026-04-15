@@ -10,10 +10,8 @@ import { AnalyticsOverview, TopPost, InboxPerformance } from '@/src/types';
  * Prêt pour l'intégration backend via les endpoints whitelistés.
  */
 
-/**
- * Service pour la gestion des données analytiques.
- * Prêt pour l'intégration backend via les endpoints whitelistés.
- */
+// Flag pour basculer entre API réelle et Mocks (pilotable via env ou constante)
+const USE_MOCKS = true; 
 
 // Fallback mocks structured according to API contract
 const FALLBACK_MOCKS = {
@@ -68,50 +66,44 @@ const FALLBACK_MOCKS = {
 };
 
 /**
+ * Client API générique avec gestion d'erreurs
+ */
+async function apiClient<T>(endpoint: string): Promise<T> {
+  if (USE_MOCKS) {
+    // Simulation d'un délai réseau léger pour le mode mock
+    return new Promise((resolve) => setTimeout(() => {
+      if (endpoint.includes('overview')) resolve(FALLBACK_MOCKS.overview as T);
+      else if (endpoint.includes('posts/top')) resolve(FALLBACK_MOCKS.topPosts as T);
+      else if (endpoint.includes('inbox/performance')) resolve(FALLBACK_MOCKS.performance as T);
+    }, 500));
+  }
+
+  const response = await fetch(`/api${endpoint}`);
+  
+  if (!response.ok) {
+    throw new Error(`API Error: ${response.status} ${response.statusText}`);
+  }
+  
+  return await response.json();
+}
+
+/**
  * GET /orgs/:orgId/analytics/overview?from=&to=
  */
 export async function fetchAnalyticsOverview(orgId: string, from: string, to: string): Promise<AnalyticsOverview> {
-  try {
-    // En production, décommenter la ligne suivante:
-    // const response = await fetch(`/api/orgs/${orgId}/analytics/overview?from=${from}&to=${to}`);
-    // return await response.json();
-    
-    // Fallback Mock (Simulation réseau légère)
-    return await Promise.resolve(FALLBACK_MOCKS.overview);
-  } catch (error) {
-    console.error('Error fetching analytics overview:', error);
-    throw error;
-  }
+  return apiClient<AnalyticsOverview>(`/orgs/${orgId}/analytics/overview?from=${from}&to=${to}`);
 }
 
 /**
  * GET /orgs/:orgId/analytics/posts/top?limit=10
  */
 export async function fetchTopPosts(orgId: string, limit: number = 10): Promise<TopPost[]> {
-  try {
-    // En production, décommenter la ligne suivante:
-    // const response = await fetch(`/api/orgs/${orgId}/analytics/posts/top?limit=${limit}`);
-    // return await response.json();
-    
-    return await Promise.resolve(FALLBACK_MOCKS.topPosts);
-  } catch (error) {
-    console.error('Error fetching top posts:', error);
-    throw error;
-  }
+  return apiClient<TopPost[]>(`/orgs/${orgId}/analytics/posts/top?limit=${limit}`);
 }
 
 /**
  * GET /orgs/:orgId/analytics/inbox/performance?from=&to=
  */
 export async function fetchInboxPerformance(orgId: string, from: string, to: string): Promise<InboxPerformance> {
-  try {
-    // En production, décommenter la ligne suivante:
-    // const response = await fetch(`/api/orgs/${orgId}/analytics/inbox/performance?from=${from}&to=${to}`);
-    // return await response.json();
-    
-    return await Promise.resolve(FALLBACK_MOCKS.performance);
-  } catch (error) {
-    console.error('Error fetching inbox performance:', error);
-    throw error;
-  }
+  return apiClient<InboxPerformance>(`/orgs/${orgId}/analytics/inbox/performance?from=${from}&to=${to}`);
 }

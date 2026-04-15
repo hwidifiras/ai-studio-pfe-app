@@ -145,3 +145,28 @@ export interface Conversation {
   priority: 'high' | 'medium' | 'low';
   status: 'escalated' | 'open' | 'closed';
 }
+
+export interface AnalyticsOverview {
+  impressions: number;
+  impressionsChange: number;
+  engagementRate: number;
+  engagementRateChange: number;
+  responseTime: number; // in minutes
+  responseTimeChange: number;
+  sentiment: {
+    positive: number;
+    neutral: number;
+    negative: number;
+  };
+}
+
+export interface TopPost extends Post {
+  engagementRate: number;
+}
+
+export interface InboxPerformance {
+  avgResponseTime: number;
+  resolvedCount: number;
+  escalatedCount: number;
+  volumeByDay: { date: string; count: number }[];
+}

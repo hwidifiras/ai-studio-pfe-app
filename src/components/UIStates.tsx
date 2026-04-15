@@ -22,6 +22,18 @@ export function EmptyState({ title, description }: { title: string, description:
   );
 }
 
+export function ErrorState({ message, onRetry }: { message: string, onRetry: () => void }) {
+  return (
+    <div className="flex flex-col items-center justify-center p-16 bg-red-50/50 border border-red-100 rounded-2xl text-center">
+      <h3 className="text-xl font-bold text-red-800 mb-2">Une erreur est survenue</h3>
+      <p className="text-red-600 max-w-xs mb-8 text-sm">{message}</p>
+      <Button onClick={onRetry} className="bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold px-8 h-11">
+        Réessayer
+      </Button>
+    </div>
+  );
+}
+
 import { Skeleton } from '@/components/ui/skeleton';
 
 export function LoadingState() {

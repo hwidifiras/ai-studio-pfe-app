@@ -15,6 +15,7 @@ import InboxView from './components/InboxView';
 import AiCenterView from './components/AiCenterView';
 import AiAssistantView from './components/AiAssistantView';
 import SettingsView from './components/SettingsView';
+import AnalyticsView from './components/AnalyticsView';
 import { LoadingState, EmptyState } from './components/UIStates';
 import { Stat, UserRole } from '@/src/types';
 import { Toaster } from '@/components/ui/sonner';
@@ -89,6 +90,10 @@ export default function App() {
 
     if (view === 'ai-config') {
       return <AiCenterView role={role} />;
+    }
+
+    if (view === 'analytics') {
+      return <AnalyticsView role={role} />;
     }
 
     if (view === 'settings') {

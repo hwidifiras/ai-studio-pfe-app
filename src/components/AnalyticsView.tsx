@@ -48,6 +48,7 @@ import { LoadingState, EmptyState, ErrorState } from './UIStates';
 import { UserRole, AnalyticsOverview, TopPost, InboxPerformance } from '@/src/types';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { fetchAnalyticsOverview, fetchTopPosts, fetchInboxPerformance } from '@/src/services/analyticsService';
 
 interface AnalyticsViewProps {
   role: UserRole;
@@ -68,6 +69,7 @@ export default function AnalyticsView({ role }: AnalyticsViewProps) {
   const [inboxPerf, setInboxPerf] = React.useState<InboxPerformance | null>(null);
 
   const isAgent = role === 'agent';
+  const canExport = role === 'owner' || role === 'manager';
 
   React.useEffect(() => {
     fetchData();
@@ -77,85 +79,32 @@ export default function AnalyticsView({ role }: AnalyticsViewProps) {
     setIsLoading(true);
     setError(null);
     try {
-      // Simulate API calls to whitelisted endpoints
-      // GET /orgs/:orgId/analytics/overview?from=&to=
-      // GET /orgs/:orgId/analytics/posts/top?limit=10
-      // GET /orgs/:orgId/analytics/inbox/performance?from=&to=
-      
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const orgId = 'current-org'; // Dynamisé via context en prod
+      const from = '2026-03-15'; // Calculé selon period
+      const to = '2026-04-15';
 
-      setOverview({
-        impressions: 125430,
-        impressionsChange: 12.5,
-        engagementRate: 4.8,
-        engagementRateChange: 0.5,
-        responseTime: 24,
-        responseTimeChange: -15,
-        sentiment: {
-          positive: 65,
-          neutral: 25,
-          negative: 10
-        }
-      });
-
-      setTopPosts([
-        {
-          id: '1',
-          platform: 'facebook',
-          content: 'Découvrez notre nouvelle collection Printemps 2026 ! 🌸 #SmartSocial #Mode',
-          author: 'Jean Dupont',
-          date: '2026-04-10',
-          engagement: 1240,
-          impressions: 15000,
-          engagementRate: 8.2,
-          status: 'published',
-          imageUrl: 'https://picsum.photos/seed/post1/400/300'
-        },
-        {
-          id: '2',
-          platform: 'linkedin',
-          content: 'Pourquoi l\'IA va transformer la gestion des réseaux sociaux pour les PME en 2026.',
-          author: 'Marie Curie',
-          date: '2026-04-12',
-          engagement: 850,
-          impressions: 12000,
-          engagementRate: 7.1,
-          status: 'published'
-        },
-        {
-          id: '3',
-          platform: 'facebook',
-          content: 'Merci à tous nos clients de Casablanca pour leur confiance ! 🇲🇦',
-          author: 'Jean Dupont',
-          date: '2026-04-08',
-          engagement: 2100,
-          impressions: 25000,
-          engagementRate: 8.4,
-          status: 'published',
-          imageUrl: 'https://picsum.photos/seed/post3/400/300'
-        }
+      const [overviewData, postsData, perfData] = await Promise.all([
+        fetchAnalyticsOverview(orgId, from, to),
+        fetchTopPosts(orgId, 10),
+        fetchInboxPerformance(orgId, from, to)
       ]);
 
-      setInboxPerf({
-        avgResponseTime: 24,
-        resolvedCount: 450,
-        escalatedCount: 12,
-        volumeByDay: [
-          { date: '01/04', count: 45 },
-          { date: '02/04', count: 52 },
-          { date: '03/04', count: 38 },
-          { date: '04/04', count: 65 },
-          { date: '05/04', count: 48 },
-          { date: '06/04', count: 55 },
-          { date: '07/04', count: 60 },
-        ]
-      });
-
+      setOverview(overviewData);
+      setTopPosts(postsData);
+      setInboxPerf(perfData);
       setIsLoading(false);
     } catch (err) {
       setError("Impossible de charger les données analytiques.");
       setIsLoading(false);
     }
+  };
+
+  const handleExport = () => {
+    if (!canExport) {
+      toast.error("Action réservée aux administrateurs (Owner/Manager)");
+      return;
+    }
+    toast.success("Exportation des données en cours...");
   };
 
   if (isLoading) return <LoadingState />;
@@ -196,10 +145,16 @@ export default function AnalyticsView({ role }: AnalyticsViewProps) {
             </SelectContent>
           </Select>
           
-          <Button variant="outline" className="rounded-xl border-slate-200 font-bold text-slate-600 gap-2 bg-white">
-            <Download size={16} />
-            Exporter
-          </Button>
+          {canExport && (
+            <Button 
+              variant="outline" 
+              className="rounded-xl border-slate-200 font-bold text-slate-600 gap-2 bg-white animate-in zoom-in duration-300"
+              onClick={handleExport}
+            >
+              <Download size={16} />
+              Exporter
+            </Button>
+          )}
         </div>
       </div>
 

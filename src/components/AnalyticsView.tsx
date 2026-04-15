@@ -71,6 +71,25 @@ export default function AnalyticsView({ role }: AnalyticsViewProps) {
   const isAgent = role === 'agent';
   const canExport = role === 'owner' || role === 'manager';
 
+  // Helper to calculate dates based on period
+  const getDatesFromPeriod = (p: string) => {
+    const to = new Date();
+    const from = new Date();
+    
+    switch (p) {
+      case '7d': from.setDate(to.getDate() - 7); break;
+      case '30d': from.setDate(to.getDate() - 30); break;
+      case '90d': from.setDate(to.getDate() - 90); break;
+      case '12m': from.setFullYear(to.getFullYear() - 1); break;
+      default: from.setDate(to.getDate() - 30);
+    }
+    
+    return {
+      from: from.toISOString().split('T')[0],
+      to: to.toISOString().split('T')[0]
+    };
+  };
+
   React.useEffect(() => {
     fetchData();
   }, [period]);
@@ -80,8 +99,7 @@ export default function AnalyticsView({ role }: AnalyticsViewProps) {
     setError(null);
     try {
       const orgId = 'current-org'; // Dynamisé via context en prod
-      const from = '2026-03-15'; // Calculé selon period
-      const to = '2026-04-15';
+      const { from, to } = getDatesFromPeriod(period);
 
       const [overviewData, postsData, perfData] = await Promise.all([
         fetchAnalyticsOverview(orgId, from, to),

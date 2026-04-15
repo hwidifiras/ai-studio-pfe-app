@@ -184,8 +184,8 @@ export default function DashboardLayout({
         </header>
 
         {/* Page Content */}
-        <ScrollArea className="flex-1 p-8">
-          <div className="w-full">
+        <ScrollArea className="flex-1 h-full">
+          <div className="p-8 w-full min-h-full flex flex-col">
             {children}
           </div>
         </ScrollArea>

@@ -45,7 +45,7 @@ export default function App() {
   const [isError, setIsError] = React.useState(false);
   const [role, setRole] = React.useState<UserRole>('owner');
   const [period, setPeriod] = React.useState('30j');
-  const [view, setView] = React.useState<'dashboard' | 'composer' | 'calendar' | 'publications' | 'inbox' | 'analytics' | 'ai' | 'ai-config'>('dashboard');
+  const [view, setView] = React.useState<'dashboard' | 'composer' | 'calendar' | 'publications' | 'inbox' | 'analytics' | 'ai' | 'ai-config' | 'settings'>('dashboard');
 
   React.useEffect(() => {
     const timer = setTimeout(() => {
